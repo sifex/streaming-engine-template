@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package com.transferwise.streamprocessing.template;
+
+option java_multiple_files = true;
+option java_package = "com.transferwise.streamprocessing.template.proto";
+
+message SimpleMessage {
+  string content = 1;
+}

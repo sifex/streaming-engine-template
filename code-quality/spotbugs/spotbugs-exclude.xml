@@ -1,0 +1,36 @@
+<FindBugsFilter>
+    <!-- false positive in Java 11, see https://github.com/spotbugs/spotbugs/issues/756 -->
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
+
+    <!-- false positive in Java 11, see https://github.com/spotbugs/spotbugs/issues/756 -->
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+
+    <Match>
+        <!-- Disable warnings about mutable objects and the use of public fields.
+            EI_EXPOSE_REP: May expose internal representation by returning reference to mutable object
+            EI_EXPOSE_REP2: May expose internal representation by incorporating reference to mutable object
+            MS_PKGPROTECT: Field should be package protected -->
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_PKGPROTECT"/>
+    </Match>
+
+    <Match>
+        <Source name="~.*proto.*"/>
+    </Match>
+
+    <Match>
+        <Source name="~.*avro.*"/>
+    </Match>
+
+    <Match>
+        <Source name="~.*Test.groovy"/>
+    </Match>
+
+    <Match>
+        <Source name="~.*.groovy"/>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+</FindBugsFilter>

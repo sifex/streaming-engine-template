@@ -1,0 +1,85 @@
+# TODO: Replace with your pipeline name. We recommend to create a new service with `streaming-server` as a prefix.
+#       Example: streaming-server-fraud, streaming-server-user-statistics, etc.
+name: streaming-server-my-pipeline
+team: my-team # TODO: Replace with your team
+tier:
+  # TODO: Set proper availability tier
+  availability: 4
+  # TODO: Set proper risk tier
+  risk: B
+repository: https://github.com/transferwise/streaming-engine/tree/master/streaming-server-deployments/deployment-pricing # TODO: Replace with your repository
+victorOpsRoutingKey: my-vo-key # TODO: Replace with your team
+octopusAuthorisedGroups: '[my-team,machine-users,stream-processing]' # TODO: Replace `my-team` with your team. `stream-processing` and `machine-users` have to stay as is.
+podDeploymentType: StatefulSet
+slackChannel: "#my-team-slack-channel" # TODO: Replace with your team's slack channel
+
+# to avoid unnecessary data re-balancing it's much better for Stream Processing application to do parallel rollout.
+statefulsets:
+  podManagementPolicy: Parallel
+
+# TODO: Replace with your image name. Try to have the image name and K8s deployment name in sync.
+image:
+  name: streaming-server-my-pipeline
+
+serviceTypes: [ java, stream-processing ]
+
+service:
+  envoy:
+    enabled: true
+  livenessProbe:
+    path: /health
+    initialDelaySeconds: 90
+  readinessProbe:
+    path: /readiness
+    initialDelaySeconds: 90
+
+loadDefaults: java
+
+# Streaming Server uses very little of Java heap. Most of the memory usage comes from the native memory usage.
+java:
+  heapSize: 1024
+
+env:
+  CLUSTER_ID: "cluster1"
+
+prometheus:
+  enabled: true
+  # TODO: Replace `REPLACE_ME` with your pipeline's stream-group-id. stream-group-id can be found in application.yml of your codebase.
+  # If you haven't specified stream-group-id in your application.yml configuration, pipeline name will be used as stream-group-id.
+  alerts:
+    pipelineRebalancingForMoreThan30Minutes:
+      name: pipelineRebalancingForMoreThan30Minutes
+      summary: "Alert when pipeline is in REBALANCING state for more than 30 minutes"
+      description: |
+        Warning alert when pipeline has been re-balancing for over 30 minutes.
+      expr: |
+        sum(pipeline_state_reporting{pipeline_state="REBALANCING", stream_app_id=~"cluster.+-REPLACE_ME"} > 0)
+      for: 30m
+      severity: warning
+      runbookURL: https://transferwise.atlassian.net/wiki/spaces/DD/pages/1101204780
+      dashboardURL: https://dashboards.tw.ee/d/Pm-af2ov2/stream-processing-metrics?orgId=1&from=1572014395149&to=1572017995149&refresh=30s&panelId=170&fullscreen
+    pipelineInErrorState:
+      name: pipelineInErrorState
+      summary: "Alert when pipeline is in ERROR state"
+      description: |
+        Critical alert when pipeline is in ERROR state.
+      expr: |
+        sum(pipeline_state_reporting{pipeline_state="ERROR", stream_app_id=~"cluster.+-REPLACE_ME"} > 0)
+      for: 1s
+      severity: critical
+      runbookURL: https://transferwise.atlassian.net/wiki/spaces/DD/pages/1102023649
+      dashboardURL: https://dashboards.tw.ee/d/Pm-af2ov2/stream-processing-metrics?orgId=1&from=1572014395149&to=1572017995149&refresh=30s&panelId=170&fullscreen
+    pipelineInNotRunningState:
+      name: pipelineInNotRunningState
+      summary: "Alert when pipeline is in NOT_RUNNING state"
+      description: |
+        Critical alert when pipeline is in NOT_RUNNING state.
+      expr: |
+        sum(pipeline_state_reporting{pipeline_state="NOT_RUNNING", stream_app_id=~"cluster.+-REPLACE_ME"} > 0)
+      for: 1s
+      severity: critical
+      runbookURL: https://transferwise.atlassian.net/wiki/spaces/DD/pages/1101957763
+      dashboardURL: https://dashboards.tw.ee/d/Pm-af2ov2/stream-processing-metrics?orgId=1&from=1572014395149&to=1572017995149&refresh=30s&panelId=170&fullscreen
+
+namespaceAccessRBAC:
+  - stream-processing

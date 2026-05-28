@@ -1,0 +1,13 @@
+streaming-pipelines:
+  pipelines:
+    # TODO: Replace with your own pipeline configuration
+    protobuf-demo:
+      stream-processing-execution-engine: KAFKA_STREAMS
+      stream-group-id: protobuf-demo
+      enabled: ${ENV_PROTOBUF_DEMO_PIPELINE_ENABLED:false}
+      start-on-startup: ${ENV_PROTOBUF_DEMO_PIPELINE_START_ON_STARTUP:true}
+      configuration:
+        auto.offset.reset: earliest
+        topology.optimization: all
+        num.stream.threads: ${ENV_PROTOBUF_DEMO_PIPELINE_STREAM_THREADS:1}
+        num.standby.replicas: ${ENV_PROTOBUF_DEMO_PIPELINE_STANDBY_REPLICAS:0}

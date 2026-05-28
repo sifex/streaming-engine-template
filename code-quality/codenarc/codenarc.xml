@@ -1,0 +1,62 @@
+<!--
+  ~ Copyright 2010 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<ruleset xmlns="http://codenarc.org/ruleset/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://codenarc.org/ruleset/1.0 http://codenarc.org/ruleset-schema.xsd"
+         xsi:noNamespaceSchemaLocation="http://codenarc.org/ruleset-schema.xsd">
+    <ruleset-ref path='rulesets/groovyism.xml'>
+        <exclude name="GetterMethodCouldBeProperty"/>
+        <exclude name="ClosureAsLastMethodParameter"/>
+        <exclude name="ExplicitCallToCompareToMethod"/>
+        <exclude name="ExplicitHashSetInstantiation"/>
+    </ruleset-ref>
+    <ruleset-ref path='rulesets/unused.xml'>
+        <exclude name="UnusedMethodParameter"/>
+        <exclude name="UnusedVariable"/>
+    </ruleset-ref>
+    <ruleset-ref path='rulesets/basic.xml'>
+        <exclude name="EmptyCatchBlock"/>
+    </ruleset-ref>
+    <ruleset-ref path='rulesets/imports.xml'>
+        <include name="UnusedImport"/>
+    </ruleset-ref>
+    <ruleset-ref path='rulesets/unnecessary.xml'>
+        <exclude name="UnnecessaryGString"/>
+        <exclude name="UnnecessaryReturnKeyword"/>
+        <exclude name="UnnecessaryBooleanExpression"/>
+        <exclude name="UnnecessarySubstring"/>
+        <!-- Potenially enable later-->
+        <exclude name="UnnecessarySetter"/>
+        <exclude name="UnnecessaryGetter"/>
+        <exclude name="UnnecessaryObjectReferences"/>
+    </ruleset-ref>
+    <ruleset-ref path='rulesets/formatting.xml'>
+        <rule-config name='LineLength'>
+            <property name='length' value='200'/>
+        </rule-config>
+        <exclude name="ConsecutiveBlankLines"/>
+        <exclude name="SpaceAroundMapEntryColon"/>
+        <exclude name="ClassStartsWithBlankLine"/>
+        <exclude name="ClassEndsWithBlankLine"/>
+        <!-- Enable in other services -->
+        <exclude name="NoTabCharacter"/>
+        <exclude name="Indentation"/>
+        <!-- Potenially enable later-->
+        <exclude name="SpaceAfterOpeningBrace"/>
+        <exclude name="SpaceBeforeOpeningBrace"/>
+        <exclude name="SpaceAfterClosingBrace"/>
+        <exclude name="SpaceBeforeClosingBrace"/>
+    </ruleset-ref>
+</ruleset>

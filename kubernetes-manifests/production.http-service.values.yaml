@@ -1,0 +1,21 @@
+# If you wish, you can set production specific slack channel for alerts.
+# slackChannel: "#my-team-slack-channel-production" # TODO: Replace with your team's slack channel
+
+octopusAuthorisedGroups: '[my-team,stream-processing]' # TODO: Replace `my-team` with your team. `stream-processing` have to stay as is.
+
+persistentVolumes:
+  # TODO: In case if you're using Flink based engine, `/data/kafka-streams` must be replaced with `/data/flink`.
+  - mountPath: /data/kafka-streams
+    name: streaming-server-my-pipeline # TODO Replace name with your deployment name
+    diskSize: 100Gi # TODO: Choose appropriate disk size
+
+resources:
+  cpu: 1116 # TODO: Choose appropriate cpu request
+  memory: 4096 # TODO: Choose appropriate memory request
+
+service:
+  envoy:
+    resources:
+      cpu: 500 # TODO: Choose appropriate cpu request
+env:
+  SPRING_PROFILES_ACTIVE: production-kubernetes

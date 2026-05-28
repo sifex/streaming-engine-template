@@ -1,0 +1,22 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+com.fasterxml.jackson.core:jackson-annotations:2.14.3=classpath
+com.fasterxml.jackson.core:jackson-core:2.14.3=classpath
+com.fasterxml.jackson.core:jackson-databind:2.14.3=classpath
+com.fasterxml.jackson:jackson-bom:2.14.3=classpath
+com.googlecode.javaewah:JavaEWAH:1.2.3=classpath
+com.vdurmont:semver4j:3.1.0=classpath
+com.wise.common:dependencies-resolution-rules:0.1.0=classpath
+com.wise.gradlewise:common:0.1.5=classpath
+com.wise.java-library.project:com.wise.java-library.project.gradle.plugin:2.6.2=classpath
+com.wise.publish:com.wise.publish.gradle.plugin:0.1.4=classpath
+com.wise.publish:wise-publish:0.1.4=classpath
+com.wise:dependency-management-gradle-plugin:2.5.2=classpath
+com.wise:java-library-project-gradle-plugin:2.6.2=classpath
+com.wise:java-library-settings-gradle-plugin:2.6.2=classpath
+commons-codec:commons-codec:1.16.0=classpath
+org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r=classpath
+org.slf4j:slf4j-api:1.7.36=classpath
+org.yaml:snakeyaml:1.33=classpath
+empty=

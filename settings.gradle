@@ -1,0 +1,37 @@
+pluginManagement {
+    includeBuild('./common-build')
+    repositories {
+        maven { url "https://arti.tw.ee/artifactory/plugins-release" }
+        maven { url "https://arti.tw.ee/artifactory/libs-release" }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+buildscript {
+    dependencyLocking {
+        lockAllConfigurations()
+        lockMode = LockMode.STRICT
+    }
+}
+
+plugins {
+    id 'com.wise.spring-boot-service.settings' version '+'
+    id 'com.wise.java-library.settings' version '+'
+    id 'wise.stream.processing.settings' version '1.9.+'
+}
+
+println("Settings wspSpringBootDependenciesVersion: $wspSpringBootDependenciesVersion")
+
+wiseSpringBootService {
+    bootPlatformArtifact = "wise-boot-$wspSpringBootDependenciesVersion-dependencies"
+}
+
+wiseJavaLibrary {
+    targetBootPlatformArtifact = "wise-boot-$wspSpringBootDependenciesVersion-dependencies"
+}
+
+rootProject.name = 'streaming-engine-template'
+
+include 'deployment-example'
+include 'interfaces'

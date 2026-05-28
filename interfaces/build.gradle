@@ -1,0 +1,7 @@
+plugins {
+    id 'common.testing.dependencies'
+    id 'com.wise.java-library.project'
+}
+
+// Cerberus requires all non-main versions to have a SNAPSHOT suffix
+project.version = gitBranch.isReleaseBranch ? project.version : "${project.version}-SNAPSHOT"

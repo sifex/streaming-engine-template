@@ -1,0 +1,22 @@
+# If you wish, you can set staging specific slack channel for alerts.
+# slackChannel: "#my-team-slack-channel-staging" # TODO: Replace with your team's slack channel
+
+persistentVolumes:
+  # TODO: In case if you're using Flink based engine, `/data/kafka-streams` must be replaced with `/data/flink`.
+  - mountPath: /data/kafka-streams
+    name: streaming-server-my-pipeline # TODO Replace name with your deployment name
+    diskSize: 5Gi
+
+resources:
+  cpu: 19
+  memory: 2048
+
+service:
+  envoy:
+    resources:
+      cpu: 89
+
+env:
+  SPRING_PROFILES_ACTIVE: staging-kubernetes
+java:
+  heapSize: 378

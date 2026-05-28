@@ -1,0 +1,148 @@
+plugins {
+    id 'common.install-git-hooks'
+    id 'com.github.spotbugs' version '+'
+    id 'org.sonarqube' version '+'
+    id 'com.wise.gradlewise.cerberus' version '+'
+    id 'com.wise.gradlewise.gha' version '+'
+}
+
+ext {
+    forcedDependencies = [:]
+}
+
+wrapper {
+    gradleVersion = file("./gradle/gradle.version").text.trim()
+}
+
+configure(allprojects) {
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    apply plugin: 'jacoco'
+    apply plugin: 'codenarc'
+    apply plugin: 'checkstyle'
+    apply plugin: 'com.github.spotbugs'
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    group = 'com.transferwise.streamprocessing.template'
+
+    sourceSets {
+        integrationTest {
+            compileClasspath += sourceSets.main.output
+            runtimeClasspath += sourceSets.main.output
+        }
+    }
+
+    checkstyle {
+        configFile = file("$rootDir/code-quality/checkstyle/checkstyle.xml")
+        configProperties = [suppressionsFile: "$rootDir/code-quality/checkstyle/suppressions.xml"]
+    }
+
+    codenarc {
+        configFile = file("$rootDir/code-quality/codenarc/codenarc.xml")
+        reportFormat = 'console'
+    }
+
+    spotbugs {
+        excludeFilter = file("$rootDir/code-quality/spotbugs/spotbugs-exclude.xml")
+        ignoreFailures = false
+    }
+
+    jacoco {
+        reportsDirectory = file("$buildDir/jacocoReports")
+    }
+
+    jacocoTestReport {
+        dependsOn tasks.test
+        sourceSets sourceSets.main
+        reports {
+            html.required = true
+            xml.required = true
+            csv.required = false
+        }
+    }
+
+    tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+        reports {
+            xml.required.set(project.hasProperty('xmlSpotBugsReport'))
+            html.required.set(!project.hasProperty('xmlSpotBugsReport'))
+        }
+    }
+
+    tasks.withType(Test) {
+        jvmArgs = ['--add-opens', 'java.base/jdk.internal.misc=ALL-UNNAMED',
+                   '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+                   '-Dio.netty.tryReflectionSetAccessible=true',
+                   '--illegal-access=warn']
+    }
+
+    repositories {
+        maven { url "https://arti.tw.ee/artifactory/libs-release-local" }
+        maven { url "https://arti.tw.ee/artifactory/libs-release" }
+        mavenCentral()
+    }
+
+    test {
+        beforeTest { logger.lifecycle("Running test: ${it}") }
+        useJUnitPlatform()
+        outputs.upToDateWhen { false }
+    }
+
+    configurations {
+        integrationTestImplementation.extendsFrom testImplementation
+        integrationTestRuntimeOnly.extendsFrom testRuntime
+
+        all {
+            resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+                def forcedDependencyVersion = forcedDependencies[
+                    [group: details.requested.group, name: details.requested.name]
+                ]
+
+                if (forcedDependencyVersion) {
+                    details.useVersion forcedDependencyVersion
+                }
+            }
+        }
+    }
+
+    idea {
+        module {
+            testSourceDirs += project.sourceSets.integrationTest.java.srcDirs
+            testSourceDirs += project.sourceSets.integrationTest.groovy.srcDirs
+            testSourceDirs += project.sourceSets.integrationTest.resources.srcDirs
+        }
+    }
+
+    task integrationTest(type: Test) {
+        useJUnitPlatform()
+        testClassesDirs = sourceSets.integrationTest.output.classesDirs
+        classpath = sourceSets.integrationTest.runtimeClasspath
+        outputs.upToDateWhen { false }
+        maxParallelForks = 1
+    }
+
+    task codenarcAll() {
+        dependsOn("codenarcIntegrationTest", "codenarcTest", "codenarcMain")
+    }
+
+    task spotbugsAll() {
+        dependsOn("spotbugsMain", "spotbugsTest", "spotbugsIntegrationTest")
+    }
+
+    task checkstyleAll() {
+        dependsOn("checkstyleMain", "checkstyleTest", "checkstyleIntegrationTest")
+    }
+}
+
+workflow {
+    configService {
+        // TODO: Change to your team slack channel
+        slackChannel = "#stream-processing-updates"
+        buildAndTestJobConfig {
+            containerSize = 'xlarge'
+            container = "ci-images-release.arti.tw.ee/actions_java21"
+        }
+    }
+}

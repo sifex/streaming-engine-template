@@ -1,0 +1,78 @@
+// TODO: Remove if you don't need protobuf
+plugins {
+    id 'common.testing.dependencies'
+    id 'com.google.protobuf'
+    id 'wise.stream.processing.docker'
+    id 'com.wise.spring-boot-service.project'
+    id 'com.wise.spring-boot-build' version '+'
+}
+
+// TODO: Remove if you don't need protobuf
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc"
+    }
+    generateProtoTasks {
+        ofSourceSet('main').each { task ->
+            task.builtins {
+                java {
+                    outputSubDir = 'generated'
+                }
+            }
+        }
+    }
+    generatedFilesBaseDir = "$projectDir/build/proto"
+}
+
+// TODO: Remove if you don't need protobuf
+compileJava.dependsOn("generateProto")
+compileTestGroovy.dependsOn("generateTestProto")
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation engineSpringbootStreamProcessingServerStarter()
+    implementation engineStreamProcessingExecutorKafkaStreams()
+    // This library integrates Wise stream processing server with Wise's specific libraries, like tw-observability-base.
+    // It also contains Wise specific configuration values.
+    implementation 'wise.stream.processing:engine-springboot-stream-processing-server-adapter'
+
+    // TODO: Add this dependency if you need Wise's common stream processing library.
+    // implementation 'com.transferwise:tw-stream-processing-components'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation engineSpringbootStreamProcessingServerStarterSpockTest()
+}
+
+// SEI (Streaming Engine Images) is a gradle plugin configuration. Each individual pipeline must have its own
+// dedicated image and must be separately deployed in Kubernetes. This approach enables us to have multiple deployments
+// from the same codebase.
+sei {
+    // slackHook = <add your own slack hook if you want to get build notifications on SNAPSHOT builds>
+    mainClassName = "com.transferwise.streamprocessing.template.example1.Example1App"
+    images {
+        image {
+            /*
+             * If you don't specify the image name, docker image will be built based on pipeline name.
+             * By default SEI will build the image with a following format: `streaming-server-<pipeline-name>`.
+             * You can override this behaviour specifying the image using `to` builder.
+             * to {
+             *   image = "ci-images-release.arti.tw.ee/streaming-server-my-image"
+             * }
+             */
+
+            pipeline {
+                name = "protobuf-demo"
+                pipelineConfigFile = "application-example1.yml"
+            }
+            // TODO: You can set pipeline specific environment variables using `container` block. Example:
+            container {
+                environment = [
+                    ENV_PROTOBUF_DEMO_PIPELINE_ENABLED: "true"
+                ]
+            }
+        }
+    }
+}
